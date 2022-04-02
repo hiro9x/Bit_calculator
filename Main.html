@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quy đổi</title>
+    <style>
+        input[type="number"] {
+            width: 80px;
+            height: 16px;
+            padding: 2px 2px;
+        }
+
+        #show--convert {
+            display: inline-block;
+            width: 100%;
+        }
+
+        #show_explain {
+            display: none;
+            width: 450px;
+            float: right;
+            margin-left: 10px;
+            border: solid 1px black;
+            height: 50px;
+        }
+
+        #show_explain div {
+            width: 420px;
+            height: 20px;
+            margin: 5px 0px;
+        }
+
+        #show_explain div:nth-child(2) {
+            margin-top: 0;
+            margin-left: 85px;
+        }
+
+        #show_explain div:nth-child(3) {
+            width: 200px;
+            text-align: right;
+        }   
+        #show_IEEE{
+            width: 500px;
+            text-align: left;
+        }
+        .input__area {
+            width: 360px;
+            display: flex;
+            margin: 10px 0px;
+
+        }
+
+        .input__area div {
+            width: 196px;
+            height: 100%;
+        }
+
+        .input__area input[type="button"] {
+            height: 22px;
+        }
+
+        .input__area label {
+            margin-right: 42px;
+        }
+
+        #hideContent {
+            margin-top: 5px;
+            margin-left: 95px;
+            color: red;
+            visibility: hidden;
+        }
+
+        #Num8bit2 {
+            border: solid 1px black;
+            background-color: whitesmoke;
+            color: black;
+            width: 80px;
+            height: 20px;
+            margin-right: 5px;
+        }
+
+        #Calculator {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        #Calculator form div {
+            width: 100px;
+            margin: 5px;
+            display: inline-block;
+        }
+
+        #Calculator form {
+            line-height: 25px;
+            width: 320px;
+        }
+
+        #Calculator form div:last-child {
+            margin-left: 50px;
+        }
+
+        #show-Calculator {
+            margin-top: 10px;
+            margin-left: 120px;
+        }
+
+        #show-Calculator div {
+            width: 300px;
+        }
+
+        #show-Calculator span {
+            margin: 0px 0px;
+            margin-left: 20px;
+        }
+
+        #show-Calculator #multix {
+            border: solid 1px black;
+            width: 300px;
+            margin-left: 0px;
+        }
+
+        #show-Calculator #multix div {
+            display: flex;
+            width: 300px;
+        }
+
+        #show-Calculator #multix span {
+            /* border: solid 1px black; */
+            margin: 0px 2px;
+        }
+
+        #show-Calculator #multix span:first-child {
+            width: 105px;
+        }
+
+        #show-Calculator #multix span:nth-child(2) {
+            width: 100px;
+            text-align: right;
+        }
+
+        #show-Calculator p {
+            margin: 0px 70px;
+        }
+
+        #show-Calculator table {
+            width: 500px;
+        }
+
+        #show-Calculator table td:nth-child(2) {
+            width: auto;
+            text-align: right;
+        }
+
+        #show-Calculator table td:nth-child(3) {
+            width: auto;
+            text-align: right;
+        }
+
+        #show-Calculator table td:last-child {
+            padding-left: 15px;
+            width: auto;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <form>
+
+        <div>
+            Quy đổi (8 bit):
+            <select name="inputNum" id="inputNum">
+                <option value="decimal">Thập phân</option>
+                <option value="binary">Nhị phân</option>
+            </select> =>
+            <select name="inputNum2" id="inputNum2">
+                <option value="binary">Nhị phân</option>
+                <option value="decimal">Thập phân</option>
+            </select>
+        </div>
+        <div id="show--convert">
+            <div class="input__area">
+                <div>
+                    <label for="Num8bit">Nhập số:</label>
+                    <input type="number" min="0" max="11111111" name="Num8bit" id="Num8bit" maxlength="8" placeholder=""
+                        autocomplete="off">
+                    <div id="hideContent">Dư liệu ngoài vùng tính</div>
+                </div> =>&nbsp;
+                <div>
+                    <input type="text" id="Num8bit2" disabled>
+                </div>
+                <input type="button" value="click" id="demo">
+                <div id="show_explain">
+                    <div id="show_explain__1"></div>
+                    <div id="show_explain__2"></div>
+                    <div id="show_explain__3"></div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div id="Calculator">
+        <form id="Calculator-input">
+            Nhập số thập phân trong giải -128 đến +127 <br>
+            Giá trị 1: <input type="number" id="calcIn">
+            Giá trị 2: <input type="number" id="calcIn2">
+            <div>
+                <input type="button" value="+" id="sumBtn">
+                <input type="button" value="-" id="minusBtn">
+                <input type="button" value="*" id="multiBtn">
+                <input type="button" value="/" id="divideBtn">
+            </div>
+            <div>>>>>>>>></div>
+        </form>
+        <div id="show-Calculator"></div>
+    </div>
+</body>
+<script>
+    const ipNum = document.getElementById("inputNum");
+    //----------------------Hàm click tổng
+    document.getElementById("sumBtn").addEventListener("click", function () {
+        //Lấy string
+        var a = document.getElementById("calcIn").value;
+        var b = document.getElementById("calcIn2").value;
+        show_rs = document.getElementById("show-Calculator")
+        if (a < -128 || a > 127 || b < -128 || b > 127) {
+            show_rs.innerHTML = "Đầu vào nằm ngoài dải biểu diễn [-128,+127]"
+            return false;
+        }
+        if (a < 0) {
+            a = parseInt(-a).toString(2).padStart(8, 0);
+            a = changeNum(a)
+        } else {
+            a = parseInt(a).toString(2).padStart(8, 0);
+        }
+        if (b < 0) {
+            b = parseInt(-b).toString(2).padStart(8, 0);
+            b = changeNum(b)
+        } else {
+            b = parseInt(b).toString(2).padStart(8, 0);
+        }
+        //Thực hiện hàm tính toán
+        sumIn = sumBinary(a, b);
+        //In kết quả
+        var int_a = converttoInt(a);
+        var int_b = converttoInt(b);
+        var sum_ab = int_a + int_b;
+        var int_sum = converttoInt(sumIn)
+        showSum = ""
+        showSum += `${sumIn} (${int_sum})`
+        if (sum_ab != int_sum) {
+            showSum += "<br>=> Kết quả sai do hiện tượng tràn xảy ra khi tổng (" + sum_ab + ") nằm ngoài dải biểu diễn [-128,+127]"
+        }
+
+        show = "";
+        show += `<div>Giá trị 1: <span id="inP_value1">${a} (${int_a})</span></div>
+            <p>+</p>
+            <div>Giá trị 2: <span id="inP_value2">${b} (${int_b})</span></div>
+            <p>=</p>
+            <div>Kết quả: <span id="resultInp">${showSum}</span></div>`
+        show_rs.innerHTML = show;
+    })
+    //----------------------Hàm click hiệu
+    document.getElementById("minusBtn").addEventListener("click", function () {
+        //Lấy string
+        var a = document.getElementById("calcIn").value;
+        var b = document.getElementById("calcIn2").value;
+        show_rs = document.getElementById("show-Calculator")
+        if (a < -128 || a > 127 || b < -128 || b > 127) {
+            show_rs.innerHTML = "Đầu vào nằm ngoài dải biểu diễn [-128,+127]"
+            return false;
+        }
+        if (a < 0) {
+            a = parseInt(-a).toString(2).padStart(8, 0);
+            a = changeNum(a)
+        } else {
+            a = parseInt(a).toString(2).padStart(8, 0);
+        }
+        if (b < 0) {
+            b = parseInt(-b).toString(2).padStart(8, 0);
+            b = changeNum(b)
+        } else {
+            b = parseInt(b).toString(2).padStart(8, 0);
+        }
+        //đảo dấu b
+        b = changeNum(b)
+        //Thực hiện hàm tính toán
+        sumIn = sumBinary(a, b);
+        //In kết quả
+        var int_a = converttoInt(a);
+        var int_b = converttoInt(b);
+        var sum_ab = int_a + int_b;
+        var int_sum = converttoInt(sumIn)
+        showSum = ""
+        showSum += `${sumIn} (${int_sum})`
+        if (sum_ab != int_sum) {
+            showSum += "<br>=> Kết quả sai do hiện tượng tràn xảy ra khi tổng (" + sum_ab + ") nằm ngoài dải biểu diễn [-128,+127]"
+        }
+
+        show = "";
+        show += `<div>Giá trị 1: <span id="inP_value1">${a} (${int_a})</span></div>
+            <p>đảo '-' <br>thành '+'</p>
+            <div>Giá trị 2: <span id="inP_value2">${b} (${int_b})</span></div>
+            <p>=</p>
+            <div>Kết quả: <span id="resultInp">${showSum}</span></div>`
+        show_rs.innerHTML = show;
+    })
+    //----------------------Hàm click nhân
+    document.getElementById("multiBtn").addEventListener("click", function () {
+        //Lấy string
+        var a = document.getElementById("calcIn").value;
+        var b = document.getElementById("calcIn2").value;
+        var show_rs = document.getElementById("show-Calculator")
+        if (a < -128 || a > 127 || b < -128 || b > 127) {
+            show_rs.innerHTML = "Đầu vào nằm ngoài dải biểu diễn [-128,+127]"
+            return false;
+        }
+        //Kiểm tra giá trị đầu vào âm hay dương => đổi hết sang số dương
+        if (a < 0) int_a = parseInt(-a)
+        else int_a = parseInt(a)
+
+        if (b < 0) int_b = parseInt(-b)
+        else int_b = parseInt(b)
+
+        new_a = int_a.toString(2);
+        new_b = int_b.toString(2);
+        //Quy ước số lượng chữ số hiển thị ra
+        var length_ab = 0;
+        if (new_a.length > new_b.length) length_ab = new_a.length;
+        else length_ab = new_b.length;
+        if (length_ab <= 4) {
+            new_a = new_a.padStart(4, 0)
+            new_b = new_b.padStart(4, 0)
+            // }
+            // else if (length_ab <=8) {
+            //     new_a= new_a.padStart(8,0)
+            //     new_b= new_b.padStart(8,0)
+        } else {
+            new_a = new_a.padStart(length_ab, 0)
+            new_b = new_b.padStart(length_ab, 0)
+        }
+        //In kết quả
+        var int_a = converttoInt(new_a);
+        var int_b = converttoInt(new_b);
+        var sum_ab = int_a + int_b;
+        var show_tb = "";
+
+        var show_A = "0";
+        var plus_A = "";
+        var show_Q = new_b;
+        for (let i = new_b.length - 1; i >= 0; i--) {
+            var get_rs = "";
+            if (new_b.charAt(i) == "1") {
+                plus_A = new_a;
+            } else plus_A = "0";
+            new_A = sumBinary2(show_A, plus_A);
+            show_tb += `<tr>
+                            <td></td>
+                            <td>+${plus_A}</td>
+                            <td></td>
+                            <td>M&emsp;&emsp;&emsp;&emsp;(Lần ${new_b.length - i})</td>
+                        </tr>`
+            show_tb += `<tr>
+                            <td>${new_A[0]}</td>
+                            <td>${new_A[1]}</td>
+                            <td>${show_Q}</td>
+                            <td>A = A + M</td>
+                        </tr>`
+            move_a = moveBin(new_A[0], new_A[1], show_Q, "r")
+            show_tb += `<tr>
+                <td>${move_a[0]}</td>
+                <td>${move_a[1]}</td>
+                <td>${move_a[2]}</td>
+                <td>Dịch phải &gt&gt</td>
+                </tr>`
+            show_A = move_a[1];
+            show_Q = move_a[2];
+            get_rs += show_A + show_Q;
+        }
+        //Kiểm tra kết quả => đảo dấu
+        intGet_rs = parseInt(get_rs, 2)
+        if (intGet_rs >= -128 && intGet_rs <= 127) {
+            get_rs = length_bit(get_rs, 8);
+        }
+        var reverse_rs = ""
+        if ((parseInt(a) * parseInt(b)) < 0) {
+            var new_rs = changeNum(get_rs)
+            var intnew_rs = converttoInt(new_rs)
+            reverse_rs += `<br>(Đảo dấu ${new_rs} = ${intnew_rs})`
+        } else {
+            new_rs = get_rs;
+            intnew_rs = intGet_rs;
+        }
+        var show = "";
+        show += `
+            <div id="multix">
+                <div><span>Số bị nhân M = </span><span id="multiy">     ${new_a} </span><span>(${int_a})</span></div>
+                <div><span>Số nhân    Q = </span><span id="multiy">     ${new_b} </span><span>(${int_b})</span></div>
+                <div><span>Tích         = </span><span id="multiy">  ${new_rs}</span><span>(${intnew_rs})</span></div>
+            </div>
+            <table>
+                <tr>
+                    <th>C</th>
+                    <th>A</th>
+                    <th>Q</th>
+                    <th></th>
+                </tr>
+                <tr>
+                    <td>0</td>
+                    <td>0000</td>
+                    <td>${new_b}</td>
+                    <td>Các giá trị khởi đầu</td>
+                </tr>
+                ${show_tb}
+            </table>
+            (Kết quả ${get_rs} = ${intGet_rs}) 
+            ${reverse_rs}
+            `
+        show_rs.innerHTML = show;
+    })
+    //----------------------Hàm click chia
+    document.getElementById("divideBtn").addEventListener("click", function () {
+        //Lấy string
+        var a = document.getElementById("calcIn").value;
+        var b = document.getElementById("calcIn2").value;
+        var show_rs = document.getElementById("show-Calculator")
+        if (a < -128 || a > 127 || b < -128 || b > 127) {
+            show_rs.innerHTML = "Đầu vào nằm ngoài dải biểu diễn [-128,+127]"
+            return false;
+        }
+        //Kiểm tra giá trị đầu vào âm hay dương => đổi hết sang số dương
+        if (a < 0) int_a = parseInt(-a)
+        else int_a = parseInt(a)
+
+        if (b < 0) int_b = parseInt(-b)
+        else int_b = parseInt(b)
+
+        new_a = int_a.toString(2);
+        new_b = int_b.toString(2);
+
+        //Quy ước số lượng chữ số hiển thị ra
+        var length_ab = 0;
+        if (new_a.length > new_b.length) length_ab = new_a.length;
+        else length_ab = new_b.length;
+        if (length_ab <= 4) {
+            new_a = new_a.padStart(4, 0)
+            new_b = new_b.padStart(4, 0)
+            // }
+            // else if (length_ab <=8) {
+            //     new_a= new_a.padStart(8,0)
+            //     new_b= new_b.padStart(8,0)
+        } else {
+            new_a = new_a.padStart(length_ab, 0)
+            new_b = new_b.padStart(length_ab, 0)
+        }
+        //Đảo dấu A
+        int_rb = parseInt(-int_b);
+        rnew_b = changeNum(new_b);
+        //In kết quả
+        var int_a = converttoInt(new_a);
+        var int_b = converttoInt(new_b);
+        var sum_ab = int_a + int_b;
+        var show_tb = "";
+
+        var show_A = length_bit("0", length_ab);
+        var plus_A = "";
+        var show_Q = new_a;
+        var show_lastQ = 1;
+        for (let i = new_b.length - 1; i >= 0; i--) {
+            var get_rs = "";
+            plus_A = new_b;
+            plus_rA = rnew_b;
+            move_a = moveBin(0, show_A, show_Q, "l")
+            show_A = move_a[1]
+            show_Q = move_a[2]
+            // new_A = sumBinary2(show_A, plus_rA);
+            show_tb += `<tr>
+                <td></td>
+                <td>${show_A}</td>
+                <td>${show_Q}</td>
+                <td>&lt;&lt; Dịch trái&emsp;&emsp;&emsp;&emsp;(Lần ${new_b.length - i})</td>
+                </tr>`
+            show_tb += `<tr>
+                            <td></td>
+                            <td>+${plus_rA}</td>
+                            <td></td>
+                            <td>-M</td>
+                        </tr>`
+            new_A = sumBinary2(show_A, plus_rA);
+            show_A = new_A[1];
+            //Kiểm tra sau khi A + (-M) > 0?
+            if (show_A.charAt(0) == 0) {
+                intShow_Q = parseInt(show_Q) + parseInt(show_lastQ)
+                show_Q = intShow_Q.toString().padStart(length_ab, 0);
+            }
+            show_tb += `<tr>
+                            <td></td>
+                            <td>${show_A}</td>
+                            <td>${show_Q}</td>
+                            <td>A = A - M</td>
+                        </tr>`
+            //Kiểm tra sau khi A + (-M) < 0?
+            if (show_A.charAt(0) == 1) {
+                show_tb += `<tr>
+                            <td></td>
+                            <td>+${plus_A}</td>
+                            <td></td>
+                            <td>M</td>
+                        </tr>`
+                new_A = sumBinary2(show_A, plus_A);
+                show_A = new_A[1];
+                show_tb += `<tr>
+                            <td></td>
+                            <td>${show_A}</td>
+                            <td>${show_Q}</td>
+                            <td>A = A + M</td>
+                        </tr>`
+            }
+        }
+        show_A = show_A.padStart(8, 0);
+        show_Q = show_Q.padStart(8, 0);
+
+        nshow_A = changeNum(show_A);
+        nshow_Q = changeNum(show_Q);
+        var reverse_show = ""
+        if ((parseInt(a) * parseInt(b)) > 0) {
+            if (parseInt(a) < 0) {
+                nshow_Q = show_Q
+                reverse_show += `(Thực hiện đảo dấu: Thương: ${nshow_Q} = ${converttoInt(nshow_Q)}<br>
+                Hiệu: ${nshow_A} = ${converttoInt(nshow_A)})`
+            } else {
+                nshow_A = show_A
+                nshow_Q = show_Q
+            }
+        } else {
+            if (parseInt(a) < 0) {
+                reverse_show += `(Thực hiện đảo dấu: Thương: ${nshow_Q} = ${converttoInt(nshow_Q)}<br>
+                Hiệu: ${nshow_A} = ${converttoInt(nshow_A)})`
+            } else {
+                nshow_A = show_A
+                reverse_show += `(Thực hiện đảo dấu: Thương: ${nshow_Q} = ${converttoInt(nshow_Q)}<br>
+                Hiệu: ${nshow_A} = ${converttoInt(nshow_A)})`
+            }
+        }
+        var show = "";
+        show += `
+            <div id="multix">
+                <div><span>Số bị chia Q = </span><span id="multiy">     ${new_a} </span><span>(${int_a})</span></div>
+                <div><span>Số chia&emsp;M = </span><span id="multiy">     ${new_b} </span><span>(${int_b})</span></div>
+                <div><span>Đảo dấu&emsp;-M = </span><span id="multiy">  ${rnew_b}</span><span>(${int_rb})</span></div>
+                <div><span>Thương       = </span><span id="multiy">  ${nshow_Q}</span><span>(${converttoInt(nshow_Q)})</span></div>
+                <div><span>Dư           = </span><span id="multiy">  ${nshow_A}</span><span>(${converttoInt(nshow_A)})</span></div>
+            </div>
+            <table>
+                <tr>
+                    <th></th>
+                    <th>A</th>
+                    <th>Q</th>
+                    <th></th>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>0000</td>
+                    <td>${new_a}</td>
+                    <td>Các giá trị khởi đầu</td>
+                </tr>
+                ${show_tb}
+            </table>
+            (Kết quả&emsp;Thương: ${show_Q} = ${parseInt(show_Q, 2)}<br>
+            &emsp;&emsp;&emsp;&emsp;Hiệu: ${show_A} = ${parseInt(show_A, 2)}
+            &emsp;&emsp;) 
+            <br>${reverse_show}
+            `
+        show_rs.innerHTML = show;
+    })
+    //Hàm dịch bit
+    function moveBin(a, b, c, m) {
+        var x = "";
+        var n_a = "";
+        var n_b = "";
+        var n_c = "";
+        if (m == "r") {
+            x += a + b + c;
+            var y = parseInt(x, 2);
+            //Dịch bit sang phải
+            var new_x = (y >> 1).toString(2).padStart(x.length, 0);
+            //Tách số
+            for (let i = 0; i < new_x.length; i++) {
+                if (i == 0) n_a += new_x.charAt(i);
+                else if (i > 0 && i <= b.length) n_b += new_x.charAt(i);
+                else n_c += new_x.charAt(i);
+            }
+        } else if (m == "l") {
+            x += b + c;
+            var y = parseInt(x, 2);
+            //Dịch sang trái
+            var new_x = (y << 1).toString(2).padStart(x.length, 0)
+            new_x = length_bit(new_x, x.length)
+            //Tách số
+            for (let i = 0; i < new_x.length; i++) {
+                if (i >= 0 && i < b.length) n_b += new_x.charAt(i);
+                // else if(i== new_x.length -1) n_a += new_x.charAt(i);
+                else n_c += new_x.charAt(i);
+            }
+        }
+        return [n_a, n_b, n_c];
+    }
+    //Hàm quy đổi Binary to Int
+    function converttoInt(inP) {
+        inP_I = parseInt(inP, 2)
+        if (inP.charAt(0) == 0 || inP.length < 8) {
+            inP_I;
+        } else {
+            varnew_binI = changeNum(inP)
+            inP_I = parseInt(varnew_binI, 2)
+            inP_I = -inP_I;
+        }
+        return inP_I;
+    }
+    //Hàm tính tổng (8 số)
+    function sumBinary(a, b) {
+        var sumIn = parseInt(a, 2) + parseInt(b, 2);
+        sumIn = sumIn.toString(2);
+
+        //Với kết quả lớn hơn 8 số, dùng for để lấy 8 số cuối
+        var new_sumIn = "";
+        for (let i = sumIn.length - 1; i >= 0; i--) {
+            new_sumIn += sumIn.charAt(i);
+            if (new_sumIn.length == 8) {
+                break;
+            }
+        }
+        //đảo ngược lại dãy số lấy kết quả đúng
+        sumIn = "";
+        for (let i = new_sumIn.length - 1; i >= 0; i--) {
+            sumIn += new_sumIn.charAt(i);
+        }
+        return sumIn.padStart(8, 0);
+    }
+    //Hàm tính tổng (số bất kỳ)
+    function sumBinary2(a, b) {
+        if (a.length > b.length) b = b.padStart(a.length, 0);
+        else a = a.padStart(b.length, 0);
+        var a_length = a.length;
+        var int_sum = parseInt(a, 2) + parseInt(b, 2);
+        var str_sum = int_sum.toString(2).padStart(a_length, 0);
+        //Với kết quả lớn hơn 'a.length' số, dùng for để lấy 'a.length' số cuối
+        var new_sumIn = "";
+        var last_char = "";
+        for (let i = str_sum.length - 1; i >= 0; i--) {
+            new_sumIn += str_sum.charAt(i);
+            if (new_sumIn.length == a_length) {
+                if (str_sum.length > a_length)
+                    last_char += str_sum.charAt(0);
+                else last_char += "0"
+                break;
+            }
+        }
+        //đảo ngược lại dãy số lấy kết quả đúng
+        str_sum = "";
+        for (let i = new_sumIn.length - 1; i >= 0; i--) {
+            str_sum += new_sumIn.charAt(i);
+        }
+        return [last_char, str_sum];
+    }
+    //Hàm quy định chiều dài chuỗi
+    function length_bit(a, n) {
+        var n_a = "";
+        for (let i = a.length - 1; i >= 0; i--) {
+            n_a += a.charAt(i)
+        }
+        a = '';
+        for (let i = n_a.length - 1; i >= 0; i--) {
+            a += n_a.charAt(i)
+            if (n_a.length > n && i < (n_a.length - n)) a = a.slice(1);
+            else if (n_a.length < n && i == 0) a = a.padStart(n, 0);
+        }
+        return a;
+    }
+    //---------------------Hàm chuyển đổi giá trị---------------------
+    document.getElementById("demo").addEventListener("click", function () {
+        var c = document.getElementById("Num8bit").value;
+        document.getElementById("show_explain").style.display = "inline-block"
+        //convert string to Int
+        var intI = parseInt(c);
+        //convert string to Binary
+        var binI = parseInt(c, 2);
+        //Số thực
+        var floatI = parseFloat(c);
+        var minus_I = floatI - intI;
+        ///
+        var convert = document.getElementById("Num8bit2")
+        var show_explain = document.getElementById("show_explain__1")
+        var show_explain2 = document.getElementById("show_explain__2")
+        var show_explain3 = document.getElementById("show_explain__3")
+        var show = ""
+        var show2 = ""
+        var show_float = ""
+        //Chạy lệnh
+        if (ipNum.value == "decimal") {
+            if (intI < -128 || intI > 127 || !c) { //Kiểm tra đầu vào hợp lệ không
+                convert.value = "NaN";
+            } else
+                if (floatI >= 0) {//Với số dương
+                    var y = intI.toString(2)
+                    if (floatI < 1) y = y.padStart(1, 0) //change int to Binary with 1 number
+                    else y = y.padStart(8, 0) //change int to Binary with 8 number
+                    
+                    if (minus_I < 1 && minus_I > 0) { //Với số thực
+                        show_float = float_change(minus_I,3);
+                        convert.value = y +","+show_float[0];
+                        show = explain_DeToBi(y, floatI) 
+                        chuan_IE =  chuan_IEEE754(c)
+                        //Diễn giải
+                        show[0] = show[0] + show_float[1]
+                        show[1] =""
+                        show2 = `<div id=show_IEEE>Diễn giải theo chuẩn IEEE754:<br>
+                        ${chuan_IE[1]}
+                        S = 0 vì đây là số dương<br>
+                        Vậy:<br>
+                        X = <span style="color:red">0 </span>${chuan_IE[0]}
+                        </div>`
+                    } else {
+                        convert.value = y;
+                        show = explain_DeToBi(y, intI);
+                    }
+                } else {//Với số âm
+                    x = -intI.toString(2)
+                    var y = x.toString()
+                    if (floatI > -1) y = y.padStart(1, 0)
+                    else y = y.padStart(8, 0)
+                    new_y = changeNum(y);
+                    if (minus_I > -1 && minus_I < 0) {
+                        convert.value = "";
+                        chuan_IE =  chuan_IEEE754(-c)
+                        //Diễn giải
+                        show[0] = ""
+                        show[1] = ""
+                        show2 = `<div id=show_IEEE>Diễn giải theo chuẩn IEEE754:<br>
+                        ${chuan_IE[1]}
+                        S = 1 vì đây là số âm<br>
+                        Vậy:<br>
+                        X = <span style="color:red">1 </span>${chuan_IE[0]}
+                        </div>`
+                    }
+                    else{
+                        convert.value = new_y;
+                        show = explain_DeToBi(new_y, intI);
+                        show2 = explain_negativeNum(y, intI)
+                    }
+
+                }
+            //Diễn giải
+            show_explain.innerHTML = show[0];
+            show_explain2.innerHTML = show[1];
+            show_explain3.innerHTML = show2;
+        } else {//Chuyển đối số Bit sang thập phân
+            //Với số dương
+            if (c.charAt(0) == 0 || c.length < 8) {
+                convert.value = binI;
+                show = explain_DeToBi(c, binI)
+            } else {//Với số âm
+                var varnew_binI = changeNum(c)
+                binI = parseInt(varnew_binI, 2)
+                convert.value = -binI;
+                show = explain_BiToDe(c, -binI)
+                show3 = explain_negativeNum(c, binI)
+            }
+            show_explain.innerHTML = show[0];
+            show_explain2.innerHTML = show[1]
+            show_explain3.innerHTML = show3;
+        }
+    })
+    //Diễn giải số thập phân -> nhị phân
+    function explain_DeToBi(y, x) {
+        var show = `Diễn giải: ${x} = `;
+        var show2 = "=> :";
+        for (let i = 0; i < y.length; i++) {
+            if (y.charAt(i) == 0) {
+                show += `+ 0 `;
+                show2 += `+&ensp;0&ensp;`;
+            } else {
+                show += `+ 2^${y.length - 1 - i} `;
+                show2 += ` +&ensp;1&ensp;`
+            }
+        }
+        return [show, show2];
+    }
+    //Diễn giải số nhị phân -> thập phân
+    function explain_BiToDe(y, x) {
+        var show = `Diễn giải: ${x} = `;
+        var show2 = "=>:";
+        for (let i = 0; i < y.length; i++) {
+            if (i == 0) {
+                show += `- 2^7 `;
+                show2 += `+&ensp;1&ensp;`
+            }
+            else {
+                if (y.charAt(i) == 0) {
+                    show += `+ 0 `;
+                    show2 += `+&ensp;0&ensp;`;
+                } else {
+                    show += `+ 2^${y.length - 1 - i} `;
+                    show2 += `+&ensp;1&ensp;`
+                }
+            }
+        }
+        return [show, show2];
+    }
+    //Diễn giải số âm theo mã bù hai
+    function explain_negativeNum(y, intI) {
+        var show3 = `Diễn giải theo mã bù hai:<br>
+                    Số dương: ${-intI} = ${y}<br>
+                    Bù một:  &emsp;&emsp;&ensp;&ensp;${reverse(y)}<br>
+                    +1<br>
+                    Bù hai:&ensp;&ensp;${intI} = ${changeNum(y)}
+                    `
+        return show3;
+    }
+    //Hàm chuyển đổi số thực => Bit
+    function float_change(a,count) {
+        var show_bit = ""
+        var show_explain ="";
+        do {
+            a *= 2;
+            if (a >= 1) {
+                show_bit += "1";
+                a -= 1;
+            } else show_bit += "0";
+            count--;
+        } while (count > 0)
+        for(let i = 0; i <show_bit.length;i++){
+            if(show_bit.charAt(i)==1) show_explain+=`+ 2^(-${i+1}) `
+            else show_explain+=`+ 0 `
+        }
+        return [show_bit,show_explain]
+    }
+    //Hàm diễn giải số thực theo Chuẩn IEEE754-2008
+    function chuan_IEEE754(a){
+        var float_a = parseFloat(a);
+        var int_a = parseInt(a);
+        var minus_a = float_a - int_a
+        //Lấy nhị phân trước dấu ","
+        str_a1 = int_a.toString(2)
+        //Lấy nhị phân sau dấu ","
+        str_a2 = float_change(minus_a,8)
+        //Ghép lại
+        str_float = str_a1 + "."+ str_a2[0]
+        var get_last = ""
+        var count = 0
+        for(let i = 0; i<str_float.length;i++){
+            if(str_float.charAt(i) == 1){
+                for(let j = i+1; j<10;j++){
+                    if(str_float.charAt(j)==1) get_last+="1";
+                    else if(str_float.charAt(j)==0) get_last+="0"
+                    else count = j-i-1
+                }
+                break;
+            }
+        }
+        var get_e = count + 127
+        var str_e = get_e.toString(2)
+        var get_X = get_last.padEnd(31-str_e.length,0)
+        //Dùng for tạo khoảng trống với mỗi 4 ký tự
+        var get_nX = ""
+        var count_l = 4;
+        for(let i = get_X.length - 1 ; i >=0; i--){
+            if(count_l%4 === 0) get_nX += " "
+            count_l -=1;
+            get_nX += get_X.charAt(i)
+        }
+        get_spaceX = ""
+        for(let i = get_nX.length - 1 ; i >=0; i--){
+            get_spaceX += get_nX.charAt(i)
+        }
+        get_spaceX = `<span style='color:blue'>${str_e} </span>`+ get_spaceX
+        //Diễn giải
+        var show = `X = ${a} = `;
+        show += `${str_float.slice(0,10)} = 1.`;
+        show += `${get_last} x 2^${count}<br>`
+        show += `E = e - 127 = ${count} -> e = 127 + ${count} = ${get_e}<br>`
+        show += `E = ${str_e}<br>`
+        // show += `Vậy: X = ${get_X}`
+        
+        return [get_spaceX,show];
+    }
+    console.log(chuan_IEEE754(83.75))
+    console.log(chuan_IEEE754(46.5))
+    //Hàm chuyển đổi giá trị Select
+    function changeSelect(a1, a2) {
+        document.getElementById(a1).addEventListener("change", function () {
+            var b = document.getElementById(a1);
+            var b1 = document.getElementById(a2);
+            // console.log(b)
+            if (b.value == "decimal") {
+                b1.value = "binary";
+            } else {
+                b1.value = "decimal";
+            }
+            return false;
+        })
+    }
+    changeSelect("inputNum", "inputNum2");
+    changeSelect("inputNum2", "inputNum");
+    //Hàm kiểm tra giá trị đầu vào input
+    document.getElementById("Num8bit").addEventListener("keyup", function (event) {
+        var x = document.getElementById("hideContent")
+        var maxlenght = this.value.length;
+        var limit = 8;
+        //Kiểm tra giới hạn ký tự là 8
+        if (maxlenght > limit) {
+            this.value = this.value.slice(0, 8);
+            maxlenght = limit
+        }
+
+        for (i = 0; i < maxlenght; i++) {
+            //Trường hợp nhập số nhị phân 0, 1
+            if (ipNum.value == "binary") {
+                this.placeholder = "Số nhị phân [0,1]"
+                check = this.value.charAt(i)
+                if (check == "0" || check == "1") {
+                    x.style.visibility = "hidden"
+                } else {
+                    this.value = this.value.slice(0, maxlenght - 1)
+                    // x.style.visibility = "visible"
+                }
+            } else {
+                //Trường hợp nhập số thập phân từ -128 đến 127
+                this.placeholder = "Số thập phân [-128,127]";
+                var intI = parseInt(this.value);
+                if (intI >= -128 && intI <= 127) {
+                    x.style.visibility = "hidden"
+                } else
+                    x.style.visibility = "visible"
+            }
+        }
+    })
+    //Hàm chuyển đổi số âm
+    function changeNum(y) {
+        var leny = ""
+        leny += reverse(y);
+        for (i = leny.length - 1; i >= 0; i--) {
+            var z = leny.charAt(i)
+            if (z == "1") {
+                z = "0"
+                leny = leny.substring(0, i) + z + leny.substring(i + 1, leny.length)
+            } else {
+                z = "1"
+                leny = leny.substring(0, i) + z + leny.substring(i + 1, leny.length)
+                break;
+            }
+        }
+        return leny;
+    }
+    //Hàm đảo ngược
+    function reverse(y) {
+        var leny = ""
+        for (i = 0; i < y.length; i++) {
+            if (y.charAt(i) == '0') leny += "1";
+            else leny += "0";
+        }
+        return leny;
+    }
+</script>
+
+</html>
