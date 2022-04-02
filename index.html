@@ -776,15 +776,17 @@
     })
     //Diễn giải số thập phân -> nhị phân
     function explain_DeToBi(y, x) {
-        var show = `Diễn giải: ${x} = `;
+        var show = `Diễn giải:`
+        if (x>0) show += `${x} = +`;
+        else show += `${x} = -`;
         var show2 = "=> :";
         for (let i = 0; i < y.length; i++) {
             if (y.charAt(i) == 0) {
-                show += `+ 0 `;
-                show2 += `+&ensp;0&ensp;`;
+                show += ` 0 +`;
+                show2 += ` &nbsp;&ensp;0&ensp;`;
             } else {
-                show += `+ 2^${y.length - 1 - i} `;
-                show2 += ` +&ensp;1&ensp;`
+                show += ` 2^${y.length - 1 - i} +`;
+                show2 += ` &nbsp;&ensp;1&ensp;`
             }
         }
         return [show, show2];
@@ -801,10 +803,10 @@
             else {
                 if (y.charAt(i) == 0) {
                     show += `+ 0 `;
-                    show2 += `+&ensp;0&ensp;`;
+                    show2 += `&nbsp;&ensp;0&ensp;`;
                 } else {
                     show += `+ 2^${y.length - 1 - i} `;
-                    show2 += `+&ensp;1&ensp;`
+                    show2 += `&nbsp;&ensp;1&ensp;`
                 }
             }
         }
